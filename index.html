@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CerviScan — AI Cervical Cancer Screening</title>
+    <meta name="description" content="CerviScan: AI-powered cervical cancer screening platform for smartphones. Real-time analysis, risk assessment, and tele-consultation.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span class="status-time" id="statusTime">9:31</span>
+            <div class="status-icons">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+            </div>
+        </div>
+
+        <!-- ============ PAGE 1: PATIENT LIST ============ -->
+        <div class="page active" id="page-patients">
+            <header class="app-header">
+                <div class="header-brand">
+                    <div class="logo-icon">
+                        <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+                            <circle cx="20" cy="20" r="18" stroke="#00BFA6" stroke-width="3" fill="none"/>
+                            <path d="M12 20l5 5 11-11" stroke="#00BFA6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-name">CerviScan</span>
+                        <span class="brand-sub">AI Screening</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" id="addPatientBtn" aria-label="Add Patient">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    </button>
+                    <button class="icon-btn" aria-label="Notifications">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                        <span class="notification-badge">3</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <h1 class="page-title">Patient List</h1>
+                <p class="page-subtitle">รายชื่อผู้เข้ารับการคัดกรอง</p>
+
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#8E9BAE"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    <input type="text" placeholder="ค้นหาชื่อ, HN, เบอร์โทร..." id="searchInput">
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-row">
+                    <div class="stat-card stat-total">
+                        <div class="stat-number">248</div>
+                        <div class="stat-label">ทั้งหมด</div>
+                    </div>
+                    <div class="stat-card stat-low">
+                        <div class="stat-number">201</div>
+                        <div class="stat-label">Low Risk</div>
+                    </div>
+                    <div class="stat-card stat-high">
+                        <div class="stat-number">32</div>
+                        <div class="stat-label">High Risk</div>
+                    </div>
+                    <div class="stat-card stat-pending">
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">รอผล</div>
+                    </div>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">ทั้งหมด</button>
+                    <button class="filter-tab" data-filter="high">High Risk</button>
+                    <button class="filter-tab" data-filter="low">Low Risk</button>
+                    <button class="filter-tab" data-filter="pending">รอผล</button>
+                </div>
+
+                <!-- Patient List -->
+                <div class="patient-list" id="patientList">
+                    <div class="patient-card" data-risk="high" onclick="navigateToCapture()">
+                        <div class="patient-avatar high">
+                            <span>สม</span>
+                        </div>
+                        <div class="patient-info">
+                            <div class="patient-name">สมศรี จันทร์แจ่ม</div>
+                            <div class="patient-meta">HN: 6801234 • อายุ 45 ปี</div>
+                            <div class="patient-date">คัดกรองล่าสุด: 18 ก.ค. 2569</div>
+                        </div>
+                        <div class="patient-status">
+                            <span class="risk-badge high">HIGH RISK</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#8E9BAE"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                        </div>
+                    </div>
+
+                    <div class="patient-card" data-risk="low" onclick="navigateToCapture()">
+                        <div class="patient-avatar low">
+                            <span>วร</span>
+                        </div>
+                        <div class="patient-info">
+                            <div class="patient-name">วรรณา ทองดี</div>
+                            <div class="patient-meta">HN: 6801456 • อายุ 38 ปี</div>
+                            <div class="patient-date">คัดกรองล่าสุด: 19 ก.ค. 2569</div>
+                        </div>
+                        <div class="patient-status">
+                            <span class="risk-badge low">LOW RISK</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#8E9BAE"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                        </div>
+                    </div>
+
+                    <div class="patient-card" data-risk="pending" onclick="navigateToCapture()">
+                        <div class="patient-avatar pending">
+                            <span>นภ</span>
+                        </div>
+                        <div class="patient-info">
+                            <div class="patient-name">นภาพร แก้วมณี</div>
+                            <div class="patient-meta">HN: 6801789 • อายุ 52 ปี</div>
+                            <div class="patient-date">รอการคัดกรอง</div>
+                        </div>
+                        <div class="patient-status">
+                            <span class="risk-badge pending">PENDING</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#8E9BAE"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                        </div>
+                    </div>
+
+                    <div class="patient-card" data-risk="high" onclick="navigateToCapture()">
+                        <div class="patient-avatar high">
+                            <span>พร</span>
+                        </div>
+                        <div class="patient-info">
+                            <div class="patient-name">พรทิพย์ สุขสมบูรณ์</div>
+                            <div class="patient-meta">HN: 6802001 • อายุ 49 ปี</div>
+                            <div class="patient-date">คัดกรองล่าสุด: 17 ก.ค. 2569</div>
+                        </div>
+                        <div class="patient-status">
+                            <span class="risk-badge high">HIGH RISK</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#8E9BAE"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                        </div>
+                    </div>
+
+                    <div class="patient-card" data-risk="low" onclick="navigateToCapture()">
+                        <div class="patient-avatar low">
+                            <span>ลด</span>
+                        </div>
+                        <div class="patient-info">
+                            <div class="patient-name">ลดาวัลย์ ศรีสวัสดิ์</div>
+                            <div class="patient-meta">HN: 6802234 • อายุ 35 ปี</div>
+                            <div class="patient-date">คัดกรองล่าสุด: 20 ก.ค. 2569</div>
+                        </div>
+                        <div class="patient-status">
+                            <span class="risk-badge low">LOW RISK</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#8E9BAE"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                        </div>
+                    </div>
+
+                    <div class="patient-card" data-risk="low" onclick="navigateToCapture()">
+                        <div class="patient-avatar low">
+                            <span>จิ</span>
+                        </div>
+                        <div class="patient-info">
+                            <div class="patient-name">จิราภรณ์ พงษ์สวัสดิ์</div>
+                            <div class="patient-meta">HN: 6802567 • อายุ 41 ปี</div>
+                            <div class="patient-date">คัดกรองล่าสุด: 20 ก.ค. 2569</div>
+                        </div>
+                        <div class="patient-status">
+                            <span class="risk-badge low">LOW RISK</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#8E9BAE"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ PAGE 2: CAPTURE & REAL-TIME AI ============ -->
+        <div class="page" id="page-capture">
+            <header class="app-header capture-header">
+                <button class="back-btn" onclick="navigateTo('page-patients', 0)">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                </button>
+                <div class="header-title-center">
+                    <span>Capture & AI Analysis</span>
+                    <span class="header-subtitle">การถ่ายภาพและวิเคราะห์สด</span>
+                </div>
+                <button class="icon-btn" aria-label="Settings">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                </button>
+            </header>
+
+            <div class="page-content capture-content">
+                <!-- Camera View -->
+                <div class="camera-viewport">
+                    <div class="camera-feed">
+                        <!-- Simulated camera with SVG -->
+                        <div class="camera-placeholder">
+                            <div class="camera-circle-guide"></div>
+                            <svg class="camera-icon-big" width="60" height="60" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)">
+                                <path d="M12 15.2c1.77 0 3.2-1.43 3.2-3.2S13.77 8.8 12 8.8 8.8 10.23 8.8 12s1.43 3.2 3.2 3.2zM9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/>
+                            </svg>
+                        </div>
+                        <!-- AI Overlay Grid -->
+                        <div class="ai-overlay">
+                            <div class="crosshair"></div>
+                            <div class="detection-box" id="detectionBox">
+                                <div class="detection-corners"></div>
+                            </div>
+                        </div>
+                        <!-- AI Guidance Indicators -->
+                        <div class="ai-guidance-strip">
+                            <div class="guidance-item active">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c0 4.97 4.03 9 9 9v-2c-3.87 0-7-3.13-7-7H2zm4 0h2c0 2.76 2.24 5 5 5v-2c-1.65 0-3-1.35-3-3H6z"/></svg>
+                                <span>Focus OK</span>
+                            </div>
+                            <div class="guidance-item warning">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
+                                <span>ปรับแสง</span>
+                            </div>
+                            <div class="guidance-item active">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+                                <span>มุม OK</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real-time AI Status -->
+                <div class="ai-status-panel">
+                    <div class="ai-status-header">
+                        <div class="ai-pulse"></div>
+                        <span class="ai-status-text">AI กำลังวิเคราะห์แบบ Real-time</span>
+                    </div>
+                    <div class="ai-metrics">
+                        <div class="metric">
+                            <span class="metric-label">คุณภาพภาพ</span>
+                            <div class="metric-bar">
+                                <div class="metric-fill" style="width: 78%"></div>
+                            </div>
+                            <span class="metric-value">78%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">ตำแหน่งปากมดลูก</span>
+                            <div class="metric-bar">
+                                <div class="metric-fill good" style="width: 92%"></div>
+                            </div>
+                            <span class="metric-value">92%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">พื้นที่ VIA</span>
+                            <div class="metric-bar">
+                                <div class="metric-fill" style="width: 65%"></div>
+                            </div>
+                            <span class="metric-value">65%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Capture Controls -->
+                <div class="capture-controls">
+                    <button class="capture-secondary-btn" aria-label="Gallery">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/></svg>
+                    </button>
+                    <button class="capture-main-btn" id="captureBtn" onclick="capturePhoto()">
+                        <div class="capture-ring">
+                            <div class="capture-inner"></div>
+                        </div>
+                    </button>
+                    <button class="capture-secondary-btn" aria-label="Flash">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ PAGE 3: ANALYSIS RESULT ============ -->
+        <div class="page" id="page-analysis">
+            <header class="app-header">
+                <button class="back-btn" onclick="navigateTo('page-capture', 1)">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                </button>
+                <div class="header-title-center">
+                    <span>Analysis Result</span>
+                    <span class="header-subtitle">ผลการวิเคราะห์ AI</span>
+                </div>
+                <button class="icon-btn" aria-label="Share">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+                </button>
+            </header>
+
+            <div class="page-content analysis-content">
+                <!-- Analyzed Image with Overlay -->
+                <div class="analysis-image-container">
+                    <div class="analyzed-image">
+                        <div class="image-placeholder-analysis">
+                            <div class="cervix-illustration">
+                                <!-- SVG cervix illustration with overlay -->
+                                <svg viewBox="0 0 300 300" width="100%" height="100%">
+                                    <defs>
+                                        <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+                                            <stop offset="0%" stop-color="#4a2833"/>
+                                            <stop offset="70%" stop-color="#2d1520"/>
+                                            <stop offset="100%" stop-color="#1a0a10"/>
+                                        </radialGradient>
+                                        <radialGradient id="cervixGrad" cx="50%" cy="50%" r="50%">
+                                            <stop offset="0%" stop-color="#e8a0a0"/>
+                                            <stop offset="50%" stop-color="#d47070"/>
+                                            <stop offset="100%" stop-color="#b84040"/>
+                                        </radialGradient>
+                                    </defs>
+                                    <circle cx="150" cy="150" r="140" fill="url(#bgGrad)"/>
+                                    <circle cx="150" cy="150" r="80" fill="url(#cervixGrad)" opacity="0.9"/>
+                                    <circle cx="150" cy="150" r="20" fill="#8a2020"/>
+                                    <ellipse cx="150" cy="150" rx="25" ry="8" fill="none" stroke="#6a1515" stroke-width="1.5"/>
+                                </svg>
+                            </div>
+                            <!-- AI Detection Overlays -->
+                            <div class="overlay-marker high-risk" style="top: 30%; left: 55%;">
+                                <div class="marker-pulse"></div>
+                                <div class="marker-dot"></div>
+                                <div class="marker-label">Acetowhite<br>Lesion</div>
+                            </div>
+                            <div class="overlay-marker medium-risk" style="top: 50%; left: 35%;">
+                                <div class="marker-pulse"></div>
+                                <div class="marker-dot"></div>
+                                <div class="marker-label">SCJ<br>Zone</div>
+                            </div>
+                            <div class="overlay-heatmap"></div>
+                        </div>
+                        <div class="image-label">Analyzed Image — VIA Post Acetic Acid</div>
+                    </div>
+                </div>
+
+                <!-- Risk Assessment Card -->
+                <div class="result-card risk-card">
+                    <div class="risk-header">
+                        <div class="risk-icon high">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                        </div>
+                        <div class="risk-info">
+                            <div class="risk-title">AI Risk Assessment</div>
+                            <span class="risk-level-badge high">HIGH RISK</span>
+                        </div>
+                    </div>
+                    <div class="confidence-section">
+                        <div class="confidence-label">Confidence Score</div>
+                        <div class="confidence-bar-container">
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: 87%"></div>
+                            </div>
+                            <span class="confidence-value">87%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Findings Card -->
+                <div class="result-card findings-card">
+                    <h3 class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#1B6B7A"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        Key Findings
+                    </h3>
+                    <ul class="findings-list">
+                        <li class="finding-item high">
+                            <span class="finding-dot high"></span>
+                            <div>
+                                <strong>Acetowhite Lesion</strong>
+                                <p>Dense acetowhite area detected at 10-1 o'clock position</p>
+                            </div>
+                        </li>
+                        <li class="finding-item medium">
+                            <span class="finding-dot medium"></span>
+                            <div>
+                                <strong>Abnormal Vascular Pattern</strong>
+                                <p>Punctation observed within acetowhite area</p>
+                            </div>
+                        </li>
+                        <li class="finding-item low">
+                            <span class="finding-dot low"></span>
+                            <div>
+                                <strong>SCJ Visibility</strong>
+                                <p>Squamocolumnar junction fully visible (Type 1 TZ)</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- AI Classification -->
+                <div class="result-card classification-card">
+                    <h3 class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#1B6B7A"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+                        AI Classification
+                    </h3>
+                    <div class="classification-grid">
+                        <div class="class-item">
+                            <span class="class-label">CIN Grade</span>
+                            <span class="class-value high">CIN 2+</span>
+                        </div>
+                        <div class="class-item">
+                            <span class="class-label">VIA Result</span>
+                            <span class="class-value high">VIA Positive</span>
+                        </div>
+                        <div class="class-item">
+                            <span class="class-label">SWEDE Score</span>
+                            <span class="class-value medium">7/10</span>
+                        </div>
+                        <div class="class-item">
+                            <span class="class-label">Recommendation</span>
+                            <span class="class-value referral">Refer for Colposcopy</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="navigateTo('page-consult', 3)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                        ส่งปรึกษาแพทย์
+                    </button>
+                    <button class="btn-secondary" onclick="navigateTo('page-capture', 1)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15.2c1.77 0 3.2-1.43 3.2-3.2S13.77 8.8 12 8.8 8.8 10.23 8.8 12s1.43 3.2 3.2 3.2zM9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/></svg>
+                        ถ่ายภาพใหม่
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ PAGE 4: TELE-CONSULT & REPORT ============ -->
+        <div class="page" id="page-consult">
+            <header class="app-header">
+                <button class="back-btn" onclick="navigateTo('page-analysis', 2)">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                </button>
+                <div class="header-title-center">
+                    <span>Tele-Consult & Report</span>
+                    <span class="header-subtitle">ปรึกษาแพทย์และออกรายงาน</span>
+                </div>
+                <button class="icon-btn" aria-label="More">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                </button>
+            </header>
+
+            <div class="page-content consult-content">
+                <!-- Patient Case Summary -->
+                <div class="case-summary-card">
+                    <h3 class="card-title">Patient Case Summary</h3>
+                    <div class="case-summary-body">
+                        <div class="case-image-wrap">
+                            <div class="case-image">
+                                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                                    <defs>
+                                        <radialGradient id="caseGrad" cx="50%" cy="50%" r="50%">
+                                            <stop offset="0%" stop-color="#e8a0a0"/>
+                                            <stop offset="60%" stop-color="#b84040"/>
+                                            <stop offset="100%" stop-color="#1a0a10"/>
+                                        </radialGradient>
+                                    </defs>
+                                    <circle cx="50" cy="50" r="48" fill="url(#caseGrad)"/>
+                                    <circle cx="50" cy="50" r="25" fill="#d47070" opacity="0.8"/>
+                                    <circle cx="50" cy="50" r="8" fill="#8a2020"/>
+                                </svg>
+                            </div>
+                            <span class="case-image-label">Analyzed Image</span>
+                        </div>
+                        <div class="case-details">
+                            <div class="case-detail-row">
+                                <span class="detail-label">AI Risk Assessment:</span>
+                                <span class="risk-level-badge high">HIGH RISK</span>
+                            </div>
+                            <div class="case-findings-summary">
+                                <strong>Key Findings:</strong>
+                                <ul>
+                                    <li>Acetowhite Lesion (Dense)</li>
+                                    <li>Abnormal Vascular Pattern</li>
+                                    <li>SCJ Fully Visible (Type 1)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Patient Info Bar -->
+                    <div class="case-patient-bar">
+                        <div class="case-patient-detail">
+                            <span class="cpd-label">Patient</span>
+                            <span class="cpd-value">สมศรี จ.</span>
+                        </div>
+                        <div class="case-patient-detail">
+                            <span class="cpd-label">HN</span>
+                            <span class="cpd-value">6801234</span>
+                        </div>
+                        <div class="case-patient-detail">
+                            <span class="cpd-label">Age</span>
+                            <span class="cpd-value">45</span>
+                        </div>
+                        <div class="case-patient-detail">
+                            <span class="cpd-label">Date</span>
+                            <span class="cpd-value">21/07/69</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <button class="consult-action-btn share-btn" id="shareReportBtn">
+                    <div class="cab-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                    </div>
+                    <span>Share Report Securely</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="rgba(255,255,255,0.6)"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                </button>
+
+                <button class="consult-action-btn teleconsult-btn" id="teleConsultBtn">
+                    <div class="cab-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>
+                    </div>
+                    <span>Request Tele-Consultation</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="rgba(255,255,255,0.6)"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                </button>
+
+                <!-- Doctor's Notes -->
+                <div class="doctor-notes-card">
+                    <h3 class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#1B6B7A"><path d="M19 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h4l3 3 3-3h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/></svg>
+                        Doctor's Notes & Follow-up
+                    </h3>
+                    <div class="notes-content">
+                        <div class="note-entry">
+                            <div class="note-header">
+                                <span class="note-author">พญ. นิภา วงษ์สุวรรณ</span>
+                                <span class="note-date">21 ก.ค. 2569, 14:30</span>
+                            </div>
+                            <div class="note-body">
+                                <p>Review by Gynecologic Specialist.</p>
+                                <p>• Recommend colposcopy with biopsy within 2 weeks</p>
+                                <p>• Follow-up scan in 6 months if biopsy negative</p>
+                                <p>• Consider LEEP if CIN2+ confirmed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="add-note-area">
+                        <textarea placeholder="เพิ่มบันทึกแพทย์..." rows="3" id="doctorNoteInput"></textarea>
+                        <button class="add-note-btn" id="addNoteBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                            ส่งบันทึก
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Follow-up Timeline -->
+                <div class="timeline-card">
+                    <h3 class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#1B6B7A"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                        Follow-up Timeline
+                    </h3>
+                    <div class="timeline">
+                        <div class="timeline-item completed">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <span class="tl-date">18 ก.ค. 2569</span>
+                                <span class="tl-event">VIA Screening - AI Analysis Complete</span>
+                            </div>
+                        </div>
+                        <div class="timeline-item active">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <span class="tl-date">21 ก.ค. 2569</span>
+                                <span class="tl-event">Second Reader Review</span>
+                            </div>
+                        </div>
+                        <div class="timeline-item upcoming">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <span class="tl-date">รอนัด</span>
+                                <span class="tl-event">Colposcopy & Biopsy</span>
+                            </div>
+                        </div>
+                        <div class="timeline-item upcoming">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <span class="tl-date">~6 เดือน</span>
+                                <span class="tl-event">Follow-up Screening</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav" id="bottomNav">
+            <button class="nav-item active" data-page="page-patients" data-index="0" onclick="navigateTo('page-patients', 0)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" data-page="page-capture" data-index="1" onclick="navigateTo('page-capture', 1)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15.2c1.77 0 3.2-1.43 3.2-3.2S13.77 8.8 12 8.8 8.8 10.23 8.8 12s1.43 3.2 3.2 3.2zM9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/></svg>
+                <span>Capture</span>
+            </button>
+            <button class="nav-item" data-page="page-analysis" data-index="2" onclick="navigateTo('page-analysis', 2)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                <span>Analysis</span>
+            </button>
+            <button class="nav-item" data-page="page-consult" data-index="3" onclick="navigateTo('page-consult', 3)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12zM11 5h2v4h-2zm0 6h2v2h-2z"/></svg>
+                <span>Consult</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Modal: Add Patient -->
+    <div class="modal-overlay" id="addPatientModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>เพิ่มผู้ป่วยใหม่</h3>
+                <button class="modal-close" onclick="closeModal('addPatientModal')">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#5A6B7F"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>ชื่อ-นามสกุล</label>
+                    <input type="text" placeholder="กรอกชื่อ-นามสกุล" id="newPatientName">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>HN</label>
+                        <input type="text" placeholder="เลข HN" id="newPatientHN">
+                    </div>
+                    <div class="form-group">
+                        <label>อายุ</label>
+                        <input type="number" placeholder="อายุ" id="newPatientAge">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>เบอร์โทรศัพท์</label>
+                    <input type="tel" placeholder="0xx-xxx-xxxx" id="newPatientPhone">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('addPatientModal')">ยกเลิก</button>
+                <button class="btn-confirm" onclick="addNewPatient()">เพิ่มผู้ป่วย</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        </div>
+        <span class="toast-text" id="toastText">สำเร็จ!</span>
+    </div>
+
+    <!-- Capture Flash Overlay -->
+    <div class="capture-flash" id="captureFlash"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
